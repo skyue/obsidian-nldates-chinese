@@ -1,6 +1,6 @@
 {
   "name": "obsidian-nldates-chinese",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Obsidian 插件：支持中文自然语言输入日期，如 @今天、@下周三、@3天后",
   "main": "main.js",
   "type": "module",
