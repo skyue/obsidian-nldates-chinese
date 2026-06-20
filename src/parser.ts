@@ -1,5 +1,5 @@
 import * as chrono from "chrono-node";
-import { Chrono, Parser } from "chrono-node";
+import { Chrono, Parser, ParsingContext } from "chrono-node";
 import { moment } from "obsidian";
 
 import { DayOfWeek } from "./settings";
@@ -14,7 +14,7 @@ import {
   ZH_YEAR_WORDS,
   ZH_POSITION,
 } from "./locale";
-import { getLastDayOfMonth, getLocaleWeekStart, getWeekNumber } from "./utils";
+import { getLastDayOfMonth, getLocaleWeekStart } from "./utils";
 
 export interface NLDResult {
   formattedString: string;
@@ -34,7 +34,7 @@ function createZhChrono(): Chrono {
     const specialPattern = specialKeys.join("|");
     zhChrono.parsers.push({
       pattern: () => new RegExp(specialPattern),
-      extract: (_context: any, match: any) => {
+      extract: (_context: ParsingContext, match: RegExpMatchArray) => {
         const date = ZH_SPECIAL_DATES[match[0] as string];
         if (date) {
           return { day: date.day, month: date.month };
@@ -51,7 +51,7 @@ function createZhChrono(): Chrono {
   const ordinalPattern = ordinalKeys.join("|");
   zhChrono.parsers.push({
     pattern: () => new RegExp(`第(${ordinalPattern})`),
-    extract: (_context: any, match: any) => {
+    extract: (_context: ParsingContext, match: RegExpMatchArray) => {
       const num = ZH_ORDINALS[match[1] as string];
       if (num !== undefined) {
         return { day: num, month: moment().month() + 1 };

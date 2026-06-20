@@ -11,7 +11,6 @@ import { generateMarkdownLink, getDateLinkAlias } from "src/utils";
 import {
   ZH_WEEKDAYS_SHORT,
   ZH_WEEKDAYS_LONG,
-  ZH_RELATIVE_DAYS,
 } from "src/locale";
 
 interface IDateCompletion {

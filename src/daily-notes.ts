@@ -41,7 +41,7 @@ interface AppWithInternals {
 }
 
 function getApp(): AppWithInternals {
-  return (window as any).app as AppWithInternals;
+  return (window as unknown as { app: AppWithInternals }).app;
 }
 
 function shouldUsePeriodicNotesSettings(periodicity: string): boolean {
@@ -136,7 +136,7 @@ function getDateFromFilename(
     year: getDailyNoteSettings,
   };
 
-  const settingFn = getSettings[granularity]!;
+  const settingFn = getSettings[granularity];
   const formatSetting =
     (settingFn().format ?? "").split("/").pop() ||
     DEFAULT_DAILY_NOTE_FORMAT;
