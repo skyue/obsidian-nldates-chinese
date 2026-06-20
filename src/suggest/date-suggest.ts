@@ -37,7 +37,7 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
 
     if (this.plugin.settings.autosuggestToggleLink) {
       this.setInstructions([
-        { command: "Shift", purpose: "使用原始输入作为别名" },
+        { command: "Shift+Enter", purpose: "使用纯日期" },
       ]);
     }
   }
@@ -148,16 +148,16 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
 
     const { editor } = context;
 
-    const includeAlias = event.shiftKey;
+    const skipAlias = event.shiftKey;
     let makeIntoLink = this.plugin.settings.autosuggestToggleLink;
 
     const parsedDate = this.plugin.parseDate(suggestion.label);
     let dateStr = parsedDate.formattedString;
 
     if (makeIntoLink) {
-      const alias = includeAlias
-        ? context.query || suggestion.label
-        : getDateLinkAlias(this.plugin, suggestion.label, false) || suggestion.label;
+      const alias = skipAlias
+        ? undefined
+        : getDateLinkAlias(this.plugin, suggestion.label, false) || context.query || suggestion.label;
       dateStr = generateMarkdownLink(this.app, dateStr, alias);
     }
 
