@@ -1,13 +1,9 @@
 import { MarkdownView, ObsidianProtocolData, Plugin } from "obsidian";
 
-import DatePickerModal from "./modals/date-picker";
 import NLDParser, { NLDResult } from "./parser";
 import { NLDSettingsTab, NLDSettings, DEFAULT_SETTINGS } from "./settings";
 import DateSuggest from "./suggest/date-suggest";
-import {
-  getParseCommand,
-  getCurrentDateCommand,
-} from "./commands";
+import { getParseCommand } from "./commands";
 import { getFormattedDate, getOrCreateDailyNote, parseTruthy } from "./utils";
 import { OpenDailyNoteModal } from "./modals/open-daily-note";
 
@@ -25,32 +21,9 @@ export default class NaturalLanguageDates extends Plugin {
     });
 
     this.addCommand({
-      id: "nlp-dates-link",
-      name: "解析自然语言日期（Markdown 链接）",
-      callback: () => getParseCommand(this, "link"),
-    });
-
-    this.addCommand({
       id: "nlp-date-clean",
       name: "解析自然语言日期（纯文本）",
       callback: () => getParseCommand(this, "clean"),
-    });
-
-    this.addCommand({
-      id: "nlp-today",
-      name: "插入当前日期",
-      callback: () => getCurrentDateCommand(this),
-    });
-
-    this.addCommand({
-      id: "nlp-picker",
-      name: "日期选择器",
-      checkCallback: (checking: boolean) => {
-        if (checking) {
-          return !!this.app.workspace.getActiveViewOfType(MarkdownView);
-        }
-        new DatePickerModal(this.app, this).open();
-      },
     });
 
     this.addCommand({

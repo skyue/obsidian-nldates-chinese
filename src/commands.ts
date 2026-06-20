@@ -44,23 +44,3 @@ export function getParseCommand(
   adjustCursor(editor, cursor, newStr!, selectedText);
   editor.focus();
 }
-
-export function insertMomentCommand(
-  plugin: NaturalLanguageDates,
-  date: Date,
-  format: string
-): void {
-  const { workspace } = plugin.app;
-  const activeView = workspace.getActiveViewOfType(MarkdownView);
-
-  if (activeView) {
-    const editor = activeView.editor;
-    editor.replaceSelection(window.moment(date).format(format));
-  }
-}
-
-export function getCurrentDateCommand(plugin: NaturalLanguageDates): void {
-  const format = plugin.settings.format;
-  const date = new Date();
-  insertMomentCommand(plugin, date, format);
-}
