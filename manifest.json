@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-nldates-chinese",
+  "name": "自然语言日期（中文）",
+  "version": "1.0.0",
+  "minAppVersion": "1.12.0",
+  "description": "支持中文自然语言输入日期，如 @今天、@下周三、@3天后",
+  "author": "SKYue",
+  "authorUrl": "https://www.skyue.com",
+  "isDesktopOnly": false
+}
