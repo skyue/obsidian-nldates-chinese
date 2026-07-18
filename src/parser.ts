@@ -22,6 +22,34 @@ export interface NLDResult {
   moment: moment.Moment;
 }
 
+// 繁体→简体日期字符映射，确保 chrono zh.hans 能正确解析繁体输入
+const TRAD_TO_SIMP: Record<string, string> = {
+  "週": "周",
+  "禮": "礼",
+  "個": "个",
+  "這": "这",
+  "來": "来",
+  "節": "节",
+  "勞": "劳",
+  "動": "动",
+  "國": "国",
+  "慶": "庆",
+  "聖": "圣",
+  "誕": "诞",
+  "萬": "万",
+  "後": "后",
+  "陽": "阳",
+  "終": "终",
+};
+
+function normalizeTraditional(text: string): string {
+  let result = text;
+  for (const [trad, simp] of Object.entries(TRAD_TO_SIMP)) {
+    result = result.replace(new RegExp(trad, "g"), simp);
+  }
+  return result;
+}
+
 function createZhChrono(): Chrono {
   const zhConfig = chrono.zh.hans.createCasualConfiguration();
   const zhChrono = new Chrono(zhConfig);
@@ -122,8 +150,9 @@ export default class NLDParser {
   }
 
   getParsedDate(selectedText: string, weekStartPreference: DayOfWeek): Date {
+    const normalizedText = normalizeTraditional(selectedText);
     const parser = this.chrono;
-    const initialParse = parser.parse(selectedText);
+    const initialParse = parser.parse(normalizedText);
     const weekdayIsCertain = initialParse[0]?.start.isCertain("weekday");
 
     const weekStart =
@@ -137,7 +166,7 @@ export default class NLDParser {
     const thisWeekRe = new RegExp(
       `^(?:${THIS_PATTERN})\\s*(?:${WEEK_PATTERN})$`
     );
-    if (thisWeekRe.test(selectedText.trim())) {
+    if (thisWeekRe.test(normalizedText.trim())) {
       return safeParseDate(parser, `本周${weekStart}`, new Date());
     }
 
@@ -145,7 +174,7 @@ export default class NLDParser {
     const nextWeekRe = new RegExp(
       `^(?:${NEXT_PATTERN})\\s*(?:${WEEK_PATTERN})$`
     );
-    if (nextWeekRe.test(selectedText.trim())) {
+    if (nextWeekRe.test(normalizedText.trim())) {
       return safeParseDate(parser, `下周${weekStart}`, new Date(), {
         forwardDate: true,
       });
@@ -155,11 +184,11 @@ export default class NLDParser {
     const nextMonthRe = new RegExp(
       `^(?:${NEXT_PATTERN})\\s*(?:${MONTH_PATTERN})$`
     );
-    if (nextMonthRe.test(selectedText.trim())) {
+    if (nextMonthRe.test(normalizedText.trim())) {
       const thisMonth = safeParseDate(parser, "本月", new Date(), {
         forwardDate: true,
       });
-      return safeParseDate(parser, selectedText, thisMonth, {
+      return safeParseDate(parser, normalizedText, thisMonth, {
         forwardDate: true,
       });
     }
@@ -168,11 +197,11 @@ export default class NLDParser {
     const nextYearRe = new RegExp(
       `^(?:${NEXT_PATTERN}|明)\\s*(?:${YEAR_PATTERN})$`
     );
-    if (nextYearRe.test(selectedText.trim())) {
+    if (nextYearRe.test(normalizedText.trim())) {
       const thisYear = safeParseDate(parser, "今年", new Date(), {
         forwardDate: true,
       });
-      return safeParseDate(parser, selectedText, thisYear, {
+      return safeParseDate(parser, normalizedText, thisYear, {
         forwardDate: true,
       });
     }
@@ -181,7 +210,7 @@ export default class NLDParser {
     const endOfMonthRe = new RegExp(
       `(${END_OF_MONTH_PATTERN})\\s*([^\\n\\r]*)`
     );
-    const endOfMonthMatch = selectedText.match(endOfMonthRe);
+    const endOfMonthMatch = normalizedText.match(endOfMonthRe);
     if (endOfMonthMatch) {
       const contextStr = endOfMonthMatch[2].trim() || "本月";
       const tempDate = parser.parse(contextStr);
@@ -202,7 +231,7 @@ export default class NLDParser {
     const midOfMonthRe = new RegExp(
       `(${MID_OF_MONTH_PATTERN})\\s*([^\\n\\r]*)`
     );
-    const midOfMonthMatch = selectedText.match(midOfMonthRe);
+    const midOfMonthMatch = normalizedText.match(midOfMonthRe);
     if (midOfMonthMatch) {
       const contextStr = midOfMonthMatch[2].trim() || "本月";
       return safeParseDate(parser, `${contextStr} 15日`, new Date(), {
@@ -211,10 +240,39 @@ export default class NLDParser {
     }
 
     // 默认：交给 chrono zh.hans 解析
-    const referenceDate = weekdayIsCertain
-      ? moment().weekday(0).toDate()
-      : new Date();
+    // 对裸星期几（如「周五」），根据用户设定的周起始日，定位到本周那一天。
+    // 避免 chrono「最近匹配」策略受参考日期偏移影响而跳到上周
+    if (weekdayIsCertain) {
+      const weekdayNum = initialParse[0]?.start.get("weekday");
+      if (typeof weekdayNum === "number") {
+        // 将周几的名称转为数字 (Sunday=0)
+        const toDayNum = (d: string): number => {
+          switch (d) {
+            case "sunday": return 0;
+            case "monday": return 1;
+            case "tuesday": return 2;
+            case "wednesday": return 3;
+            case "thursday": return 4;
+            case "friday": return 5;
+            case "saturday": return 6;
+            default: return 1;
+          }
+        };
+        const startDay = weekStartPreference === "locale-default"
+          ? toDayNum(getLocaleWeekStart())
+          : toDayNum(weekStartPreference);
 
-    return safeParseDate(parser, selectedText, referenceDate);
+        const today = moment();
+        const weekStart = today.clone().day(startDay);
+        if (weekStart.isAfter(today, "day")) {
+          weekStart.subtract(7, "days");
+        }
+
+        const offset = (weekdayNum - startDay + 7) % 7;
+        return weekStart.add(offset, "days").toDate();
+      }
+    }
+
+    return safeParseDate(parser, normalizedText, new Date());
   }
 }

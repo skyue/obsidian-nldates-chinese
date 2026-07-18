@@ -11,6 +11,7 @@ import { generateMarkdownLink, getDateLinkAlias } from "src/utils";
 import {
   ZH_WEEKDAYS_SHORT,
   ZH_WEEKDAYS_LONG,
+  ZH_WEEKDAYS_ALT,
 } from "src/locale";
 
 interface IDateCompletion {
@@ -52,18 +53,19 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
 
   getDateSuggestions(
     context: EditorSuggestContext | { query: string },
-    defaults: string[] = ["今天", "明天", "昨天", "后天"]
+    defaults: string[] = ["今天", "明天", "昨天", "后天", "後天"]
   ): IDateCompletion[] {
     const query = context.query.trim();
 
     // 上下文匹配：「下」→ 下周、下个月、下周一~周日
     if (/^下/.test(query)) {
       const suggestions = [
-        "下周",
-        "下个月",
+        "下周", "下週",
+        "下个月", "下個月",
         "下年",
         ...ZH_WEEKDAYS_SHORT.map((d) => `下${d}`),
         ...ZH_WEEKDAYS_LONG.map((d) => `下${d}`),
+        ...ZH_WEEKDAYS_ALT.map((d) => `下${d}`),
       ];
       return suggestions
         .map((label) => ({ label }))
@@ -73,11 +75,12 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
     // 「上」→ 上周、上个月、上周一~周日
     if (/^上/.test(query)) {
       const suggestions = [
-        "上周",
-        "上个月",
+        "上周", "上週",
+        "上个月", "上個月",
         "上年",
         ...ZH_WEEKDAYS_SHORT.map((d) => `上${d}`),
         ...ZH_WEEKDAYS_LONG.map((d) => `上${d}`),
+        ...ZH_WEEKDAYS_ALT.map((d) => `上${d}`),
       ];
       return suggestions
         .map((label) => ({ label }))
@@ -85,8 +88,14 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
     }
 
     // 「这/本」→ 这周、这个月
-    if (/^(这|本)/.test(query)) {
-      const suggestions = ["这周", "这个月"];
+    if (/^(这|本|這)/.test(query)) {
+      const suggestions = [
+        "这周", "這週",
+        "这个月", "這個月",
+        ...ZH_WEEKDAYS_SHORT.map((d) => `本${d}`),
+        ...ZH_WEEKDAYS_LONG.map((d) => `本${d}`),
+        ...ZH_WEEKDAYS_ALT.map((d) => `本${d}`),
+      ];
       return suggestions
         .map((label) => ({ label }))
         .filter((item) => item.label.startsWith(query));
@@ -99,10 +108,10 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
       return [
         `${n}天后`,
         `${n}天前`,
-        `${n}周后`,
-        `${n}周前`,
-        `${n}个月后`,
-        `${n}个月前`,
+        `${n}周后`, `${n}週後`,
+        `${n}周前`, `${n}週前`,
+        `${n}个月后`, `${n}個月後`,
+        `${n}个月前`, `${n}個月前`,
       ]
         .map((label) => ({ label }))
         .filter((item) => item.label.startsWith(query));
@@ -120,10 +129,10 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
         return [
           `${zhNumMatch[1]}天后`,
           `${zhNumMatch[1]}天前`,
-          `${zhNumMatch[1]}周后`,
-          `${zhNumMatch[1]}周前`,
-          `${zhNumMatch[1]}个月后`,
-          `${zhNumMatch[1]}个月前`,
+          `${zhNumMatch[1]}周后`, `${zhNumMatch[1]}週後`,
+          `${zhNumMatch[1]}周前`, `${zhNumMatch[1]}週前`,
+          `${zhNumMatch[1]}个月后`, `${zhNumMatch[1]}個月後`,
+          `${zhNumMatch[1]}个月前`, `${zhNumMatch[1]}個月前`,
         ]
           .map((label) => ({ label }))
           .filter((item) => item.label.startsWith(query));
