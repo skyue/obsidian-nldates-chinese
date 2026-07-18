@@ -239,10 +239,10 @@ export default class NLDParser {
       });
     }
 
-    // 默认：交给 chrono zh.hans 解析
-    // 对裸星期几（如「周五」），根据用户设定的周起始日，定位到本周那一天。
-    // 避免 chrono「最近匹配」策略受参考日期偏移影响而跳到上周
-    if (weekdayIsCertain) {
+    // 只对裸星期几（如「周五」而非「下周五」）使用 moment 计算，
+    // 避免 chrono「最近匹配」策略受参考日期偏移影响而跳到上周。
+    // 「下周五」等带修饰词的由 chrono 正常解析（isCertain("day")=true）。
+    if (weekdayIsCertain && !initialParse[0]?.start.isCertain("day")) {
       const weekdayNum = initialParse[0]?.start.get("weekday");
       if (typeof weekdayNum === "number") {
         // 将周几的名称转为数字 (Sunday=0)
