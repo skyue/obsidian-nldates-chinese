@@ -5,17 +5,21 @@ import {
   EditorSuggest,
   EditorSuggestContext,
   EditorSuggestTriggerInfo,
+  moment,
 } from "obsidian";
 import type NaturalLanguageDates from "src/main";
-import { generateMarkdownLink, getDateLinkAlias } from "src/utils";
+import { generateMarkdownLink, getLocaleWeekStart } from "src/utils";
 import {
   ZH_WEEKDAYS_SHORT,
   ZH_WEEKDAYS_LONG,
   ZH_WEEKDAYS_ALT,
 } from "src/locale";
 
+import { getDateCandidates } from "./date-candidates";
+
 interface IDateCompletion {
   label: string;
+  date?: Date;
 }
 
 export default class DateSuggest extends EditorSuggest<IDateCompletion> {
@@ -44,6 +48,10 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
   }
 
   getSuggestions(context: EditorSuggestContext): IDateCompletion[] {
+    const weekDays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const preference = this.plugin.settings.weekStart;
+    const candidates = getDateCandidates(context.query, new Date(), weekDays.indexOf(preference === "locale-default" ? getLocaleWeekStart() : preference));
+    if (candidates !== null) return candidates;
     const suggestions = this.getDateSuggestions(context);
     if (suggestions.length) {
       return suggestions;
@@ -145,7 +153,9 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
   }
 
   renderSuggestion(suggestion: IDateCompletion, el: HTMLElement): void {
-    el.setText(suggestion.label);
+    el.setText(suggestion.date
+      ? `${suggestion.label}  ${moment(suggestion.date).format(this.plugin.settings.format)}`
+      : suggestion.label);
   }
 
   selectSuggestion(
@@ -160,13 +170,14 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
     const skipAlias = event.shiftKey;
     let makeIntoLink = this.plugin.settings.autosuggestToggleLink;
 
-    const parsedDate = this.plugin.parseDate(suggestion.label);
-    let dateStr = parsedDate.formattedString;
+    let dateStr = suggestion.date
+      ? moment(suggestion.date).format(this.plugin.settings.format)
+      : this.plugin.parseDate(suggestion.label).formattedString;
 
     if (makeIntoLink) {
       const alias = skipAlias
         ? undefined
-        : getDateLinkAlias(this.plugin, suggestion.label, false) || context.query || suggestion.label;
+        : context.query || suggestion.label;
       dateStr = generateMarkdownLink(this.app, dateStr, alias);
     }
 

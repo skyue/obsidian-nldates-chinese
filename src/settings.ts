@@ -139,7 +139,7 @@ export class NLDSettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("链接默认别名格式")
-      .setDesc("创建 wiki 链接时的默认别名格式（Moment.js 格式），留空则无别名")
+      .setDesc("命令等入口的默认别名格式（Moment.js 格式）；@ 自动建议始终使用原始输入作为别名")
       .addText((text) =>
         text
           .setPlaceholder("例如：MM月DD日")
