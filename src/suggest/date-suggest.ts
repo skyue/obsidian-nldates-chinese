@@ -53,10 +53,11 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
     const candidates = getDateCandidates(context.query, new Date(), weekDays.indexOf(preference === "locale-default" ? getLocaleWeekStart() : preference));
     if (candidates !== null) return candidates;
     const suggestions = this.getDateSuggestions(context);
-    if (suggestions.length) {
-      return suggestions;
-    }
-    return [{ label: context.query }];
+    const completions = suggestions.length ? suggestions : [{ label: context.query }];
+    return completions.map((suggestion) => ({
+      ...suggestion,
+      date: this.plugin.parseDate(suggestion.label).date,
+    }));
   }
 
   getDateSuggestions(
