@@ -103,7 +103,6 @@ export const ZH_SPECIAL_DATES: Record<string, { month: number; day: number }> = 
   "愚人节": { month: 4, day: 1 },
   "万圣节": { month: 10, day: 31 },
   "感恩节": { month: 11, day: 27 },
-  "重阳": { month: 10, day: 9 },
   // 繁體
   "勞動節": { month: 5, day: 1 },
   "國慶": { month: 10, day: 1 },
@@ -113,13 +112,6 @@ export const ZH_SPECIAL_DATES: Record<string, { month: number; day: number }> = 
   "愚人節": { month: 4, day: 1 },
   "萬聖節": { month: 10, day: 31 },
   "感恩節": { month: 11, day: 27 },
-  "重陽": { month: 10, day: 9 },
-  // 农历近似
-  "除夕": { month: 1, day: 28 },
-  "元宵": { month: 2, day: 12 },
-  "端午": { month: 6, day: 1 },
-  "中秋": { month: 9, day: 15 },
-  "七夕": { month: 8, day: 4 },
 };
 
 // ---- 数量单位（用于 X天前/后 类型）----

@@ -1,3 +1,4 @@
+import { parseHoliday } from "../holidays";
 import { ZH_ORDINALS, ZH_SPECIAL_DATES, ZH_WEEKDAY_TO_NUM } from "../locale";
 
 export interface DateCandidate {
@@ -17,6 +18,14 @@ export function getDateCandidates(query: string, today: Date, weekStart: number)
     offsets.map(build).filter((item): item is DateCandidate => item.date !== null);
   const year = today.getFullYear();
   const month = today.getMonth();
+  const traditionalHoliday = parseHoliday(text, today);
+  if (traditionalHoliday) {
+    if (traditionalHoliday.explicitYear) return Number.isNaN(traditionalHoliday.date.getTime()) ? [] : [{ label: text, date: traditionalHoliday.date }];
+    return collect((offset, index) => ({
+      label: ["今年", "明年", "去年"][index] + text,
+      date: (() => { const result = parseHoliday(`${year + offset}年${text}`, today)!.date; return Number.isNaN(result.getTime()) ? null : result; })(),
+    }));
+  }
   const weekday = ZH_WEEKDAY_TO_NUM[text];
   if (weekday !== undefined) {
     return collect((offset, index) => ({

@@ -1,3 +1,4 @@
+import { parseHoliday } from "./holidays";
 import * as chrono from "chrono-node";
 import { Chrono, Parser, ParsingContext } from "chrono-node";
 import { moment } from "obsidian";
@@ -150,6 +151,8 @@ export default class NLDParser {
   }
 
   getParsedDate(selectedText: string, weekStartPreference: DayOfWeek): Date {
+    const holiday = parseHoliday(selectedText);
+    if (holiday) return holiday.date;
     const normalizedText = normalizeTraditional(selectedText);
     const parser = this.chrono;
     const initialParse = parser.parse(normalizedText);
