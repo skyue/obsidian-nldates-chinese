@@ -1,3 +1,17 @@
+# Natural Language Dates — Chinese
+
+An Obsidian plugin for inserting date links and opening daily notes using natural language in Simplified or Traditional Chinese.
+
+Type `@今天` (today), `@下周二` (next Tuesday), or `@3天后` (in three days). Every suggestion previews its exact date. Ambiguous expressions such as `@周二` offer this, next, and previous week; the link alias preserves your original input. Press Enter to insert a date link, or Shift+Enter for a link without an alias.
+
+Traditional holidays use offline lunar calendar conversion. Spring Festival, Lantern Festival, Dragon Boat Festival, Qixi, Mid-Autumn Festival, Double Ninth Festival, Laba, Lunar New Year's Eve, Qingming and Winter Solstice are supported for Gregorian years 1900–2100. Explicit years produce one result; bare holiday names offer adjacent years. Official vacation schedules and compensatory workdays are not included.
+
+Install from Obsidian Community Plugins by searching for **Natural Language Dates - Chinese**, or copy `main.js` and `manifest.json` from the latest GitHub release into `.obsidian/plugins/nldates-chinese/` and enable the plugin. Requires Obsidian 1.12.0 or later.
+
+Settings include date format, week start, trigger character and link output. Commands also support parsing selected text and opening a daily note. Development: `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
+
+---
+
 # 自然语言日期（中文）
 
 Obsidian 插件，支持使用中文自然语言输入日期，快速插入日期链接或打开日记。

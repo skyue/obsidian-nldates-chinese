@@ -1,4 +1,4 @@
-import { MarkdownView, ObsidianProtocolData, Plugin } from "obsidian";
+import { ObsidianProtocolData, Plugin } from "obsidian";
 
 import NLDParser, { NLDResult } from "./parser";
 import { NLDSettingsTab, NLDSettings, DEFAULT_SETTINGS } from "./settings";

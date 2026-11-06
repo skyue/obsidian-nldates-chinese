@@ -5,7 +5,6 @@ import {
   EditorSuggest,
   EditorSuggestContext,
   EditorSuggestTriggerInfo,
-  moment,
 } from "obsidian";
 import type NaturalLanguageDates from "src/main";
 import { generateMarkdownLink, getLocaleWeekStart } from "src/utils";
@@ -155,7 +154,7 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
 
   renderSuggestion(suggestion: IDateCompletion, el: HTMLElement): void {
     el.setText(suggestion.date
-      ? `${suggestion.label}  ${moment(suggestion.date).format(this.plugin.settings.format)}`
+      ? `${suggestion.label}  ${window.moment(suggestion.date).format(this.plugin.settings.format)}`
       : suggestion.label);
   }
 
@@ -169,10 +168,10 @@ export default class DateSuggest extends EditorSuggest<IDateCompletion> {
     const { editor } = context;
 
     const skipAlias = event.shiftKey;
-    let makeIntoLink = this.plugin.settings.autosuggestToggleLink;
+    const makeIntoLink = this.plugin.settings.autosuggestToggleLink;
 
     let dateStr = suggestion.date
-      ? moment(suggestion.date).format(this.plugin.settings.format)
+      ? window.moment(suggestion.date).format(this.plugin.settings.format)
       : this.plugin.parseDate(suggestion.label).formattedString;
 
     if (makeIntoLink) {

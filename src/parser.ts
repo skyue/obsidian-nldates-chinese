@@ -1,6 +1,6 @@
 import { parseHoliday } from "./holidays";
 import * as chrono from "chrono-node";
-import { Chrono, Parser, ParsingContext } from "chrono-node";
+import { Chrono, ParsingContext } from "chrono-node";
 import { moment } from "obsidian";
 
 import { DayOfWeek } from "./settings";
@@ -64,13 +64,13 @@ function createZhChrono(): Chrono {
     zhChrono.parsers.push({
       pattern: () => new RegExp(specialPattern),
       extract: (_context: ParsingContext, match: RegExpMatchArray) => {
-        const date = ZH_SPECIAL_DATES[match[0] as string];
+        const date = ZH_SPECIAL_DATES[match[0]];
         if (date) {
           return { day: date.day, month: date.month };
         }
         return null;
       },
-    } as Parser);
+    });
   }
 
   // Custom Parser 2: 中文序数词「第一」「第二」... 「第三十一」
@@ -81,13 +81,13 @@ function createZhChrono(): Chrono {
   zhChrono.parsers.push({
     pattern: () => new RegExp(`第(${ordinalPattern})`),
     extract: (_context: ParsingContext, match: RegExpMatchArray) => {
-      const num = ZH_ORDINALS[match[1] as string];
+      const num = ZH_ORDINALS[match[1]];
       if (num !== undefined) {
-        return { day: num, month: moment().month() + 1 };
+        return { day: num, month: window.moment().month() + 1 };
       }
       return null;
     },
-  } as Parser);
+  });
 
   // Custom Parser 3: 相对日（后天、大后天、前天、大前天）
   // chrono zh.hans 只覆盖今天/明天/昨天
@@ -104,8 +104,8 @@ function createZhChrono(): Chrono {
     const relPattern = relativeEntries.map(([k]: [string, number]) => k).join("|");
     zhChrono.parsers.push({
       pattern: () => new RegExp(relPattern),
-      extract: (context: any, match: any) => {
-        const offset = ZH_RELATIVE_DAYS[match[0] as string];
+      extract: (context: ParsingContext, match: RegExpMatchArray) => {
+        const offset = ZH_RELATIVE_DAYS[match[0]];
         if (offset !== undefined) {
           const refDate = context.refDate || new Date();
           const target = new Date(refDate);
@@ -118,7 +118,7 @@ function createZhChrono(): Chrono {
         }
         return null;
       },
-    } as Parser);
+    });
   }
 
   return zhChrono;
@@ -218,9 +218,9 @@ export default class NLDParser {
       const contextStr = endOfMonthMatch[2].trim() || "本月";
       const tempDate = parser.parse(contextStr);
       const year =
-        tempDate[0]?.start.get("year") ?? moment().year();
+        tempDate[0]?.start.get("year") ?? window.moment().year();
       const month =
-        tempDate[0]?.start.get("month") ?? moment().month() + 1;
+        tempDate[0]?.start.get("month") ?? window.moment().month() + 1;
       const lastDay = getLastDayOfMonth(year, month);
       return safeParseDate(
         parser,
@@ -265,7 +265,7 @@ export default class NLDParser {
           ? toDayNum(getLocaleWeekStart())
           : toDayNum(weekStartPreference);
 
-        const today = moment();
+        const today = window.moment();
         const weekStart = today.clone().day(startDay);
         if (weekStart.isAfter(today, "day")) {
           weekStart.subtract(7, "days");

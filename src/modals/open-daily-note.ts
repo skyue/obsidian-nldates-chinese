@@ -24,7 +24,7 @@ export class OpenDailyNoteModal extends SuggestModal<string> {
   }
 
   renderSuggestion(suggestion: string, el: HTMLElement): void {
-    el.createEl("div", { text: suggestion });
+    el.createDiv({ text: suggestion });
   }
 
   onChooseSuggestion(suggestion: string): void {
